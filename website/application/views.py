@@ -1,11 +1,28 @@
 from flask import Blueprint
 from flask import Flask, render_template, url_for, redirect, request, session, jsonify, flash, Blueprint
 from .database import DataBase
+from transformers import RobertaTokenizerFast, TFRobertaForSequenceClassification, pipeline
+from better_profanity import profanity
+
 
 view = Blueprint("views", __name__) # Register blueprint as 'view'
 
 NAME_KEY = 'name'
 MSG_LIMIT = 20 # Maximum messages in display
+
+categorized_emotions = {
+    "Positive": ["admiration", "amusement", "approval", "caring", "curiosity", "desire", "excitement",
+                 "gratitude", "joy", "love", "optimism", "pride", "realization", "relief"],
+    
+    "Negative": ["anger", "annoyance", "disappointment", "disapproval", "disgust", "embarrassment", 
+                 "fear", "grief", "nervousness", "remorse", "sadness"],
+    
+    "Neutral": ["confusion", "neutral"]
+}
+
+tokenizer = RobertaTokenizerFast.from_pretrained("arpanghoshal/EmoRoBERTa")
+model = TFRobertaForSequenceClassification.from_pretrained("arpanghoshal/EmoRoBERTa")
+emotion = pipeline('sentiment-analysis', model='arpanghoshal/EmoRoBERTa')
 
 @view.route("/login", methods=["POST", "GET"]) # When going to /login...
 def login(): # The Login Page, inputted 'name' will serve as user's session identifier
@@ -40,6 +57,8 @@ def home(): # Displays chatroom, redirects to Login if user is not logged in
 def about(): # Displays about page of Chatmeleon
 
     return render_template("about.html")
+
+
 
 
 @view.route("/history")
@@ -79,41 +98,45 @@ def get_history(name): # Gets all user's past messages from database, return as 
     return messages
 
 
-
-
-
-
-
-
 @view.route("/get_color")
 def get_color(): # Returns the color code for chat's background using an algorithm (Adaptive Color Feature)
-    db = DataBase()
-    msgs = db.get_all_messages(MSG_LIMIT) # Get last 20 messages from database (messages.db)
+   db = DataBase()
+    msgs = db.get_all_messages(MSG_LIMIT) 
     messages = remove_seconds_from_messages(msgs)
 
-    # 'messages' is an object array of the last 20 messages of chat, each object in the array is structured like:
-    # {'name': 'Jeff', 'message': 'Hello there guys!', 'time': '2024-03-03 23:48'}
-    # Based on 'messages', get the appropriate rgb value and store it in 'color' as a string
-    color = "rgb(153,255,221)" # Sample rgb color
+    # Initialize emotion counts for each category
+    emotion_counts = {"Positive": 0, "Negative": 0, "Neutral": 0}
+
+    # Iterate through each message and calculate the sentiment score
+    for msg in messages:
+        emotion_labels = emotion(msg["message"])  # Get emotion labels for the message
+        top_emotion = emotion_labels[0]["label"]  # Get the top emotion label
+
+        # Increment the count for the corresponding emotion category
+        for category, emotion_list in categorized_emotions.items():
+            if top_emotion in emotion_list:
+                emotion_counts[category] += 1
+                break
+
+    # Determine the predominant emotion category
+    predominant_emotion = max(emotion_counts, key=emotion_counts.get)
+
+    # Map the predominant emotion category to its corresponding color
+    color = {"Positive": "rgb(153,255,221)", "Negative": "rgb(255,153,153)", "Neutral": "rgb(240,240,240)"}.get(predominant_emotion)
 
     return jsonify(color)
 
+
+
 @view.route("/check_message")
-def check_message(): # Checks if message sent is appropriate using an algorithm (Suppressor Feature)
+def check_message():
     message = request.args.get('message')
-    message.replace("_", " ") # 'message' is the message string send by a user like "Hello there!"
-    
-    if "crap" in message.lower() : # Sample condition for "inappropriate message"
-        return jsonify('FALSE')  # Return 'FALSE' if 'message' is inappropriate
-    else: 
-        return jsonify('TRUE') # Return 'TRUE' if 'message' is appropriate
+    message = message.replace("_", " ")  # Clean up the message
 
-
-
-
-
-
-
+    if profanity.contains_profanity(message):
+        return jsonify('FALSE')  # Return 'FALSE' if profanity is detected
+    else:
+        return jsonify('TRUE')   # Return 'TRUE' if no profanity is detected
 
 def remove_seconds_from_messages(msgs): # Simple 'seconds' removal
     messages = []
