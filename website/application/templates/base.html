@@ -3,12 +3,132 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Madimi+One&display=swap" rel="stylesheet">
+
         <style type="text/css">
+          /* New Global Styles */
+          .myfont {
+            font-family: 'Madimi One', sans-serif;
+          }
+
+          body {
+          margin: 0;
+          padding: 0;
+          background: linear-gradient(to right, #3d5b38, #6c8b46);
+          height: 100vh; /* Full viewport height */
+          width: 100vw; /* Full viewport width */
+          overflow: hidden; /* Hides any scrollbars that could be caused by setting height to 100vh */
+          }
+
+          body, h1, h2, h3, p {
+                font-family: 'Roboto', sans-serif; /* Update the font family */
+          }
+
+          /* Update styles */
+          .navbar {
+                background-color: #244221; /* Dark navbar */
+          }
+
+          .navbar-brand, .nav-link {
+              color: #fff; /* White text */
+          }
+
+          /* General chat message styling - container for bubble and name */
+          .chat-message {
+            display: flex;
+            flex-direction: column; /* Stack elements vertically */
+            align-items: flex-start; /* Align items to the start */
+            margin-bottom: 20px; /* Space between messages */
+            margin-right: 18px;
+            margin-left: 18px;
+          }
+
+            .chat-message.self {
+              align-items: flex-end; /* Align items to the end for self messages */
+            }
+
+            /* Username styling */
+            .username {
+              font-size: 15px;
+              color: #333; /* Dark grey color for username */
+              margin-bottom: 2px; /* Space between username and bubble */
+            }
+
+            .self .username {
+              align-self: flex-end; /* Align self username to the end */
+            }
+
+            /* Chat bubble styling */
+            .chat-bubble {
+              background-color: #000; /* Black background for chat bubble */
+              color: #fff; /* White text color */
+              border-radius: 20px;
+              padding: 10px 16px 10px 16px; /* Top Right Bottom Left */
+              max-width: 80%;
+              word-wrap: break-word; /* Ensures the text wraps within the bubble */
+            }
+
+            /* You might want to add a specific style for the <p> inside the bubble if it still has space */
+            .chat-bubble p {
+              margin: 0; /* Remove default margins */
+              line-height: 1.2; /* Adjust line-height as needed, default is usually around 1.4 */
+            }
+
+            /* Chat bubble styling for the logged-in user */
+            .self .chat-bubble {
+              background-color: #000; /* Black background for chat bubble */
+              color: #fff; /* White text color */
+              border-radius: 20px;
+              padding: 10px 16px 10px 16px; /* Top Right Bottom Left */
+              max-width: 80%;
+              word-wrap: break-word; /* Ensures the text wraps within the bubble */
+            }
+
+            /* Chat bubble styling for other users */
+            .other .chat-bubble {
+              background-color: #b9b9b9; /* White background for other users' chat bubble */
+              color: #000; /* Black text color */
+              border-radius: 20px;
+              padding: 10px 16px 10px 16px; /* Top Right Bottom Left */
+              max-width: 80%;
+              word-wrap: break-word; /* Ensures the text wraps within the bubble */
+            }
+
+            /* Timestamp styling */
+            .timestamp {
+              font-size: 0.75em;
+              color: rgba(0, 0, 0, 0.6); /* Light white color for timestamp */
+              align-self: left; /* Center timestamp beneath the bubble */
+            }
+
+            /* Style for all browsers */
+            * {
+              scrollbar-width: thin;
+              scrollbar-color: #629e65 #ffffff; /* Adjust the thumb and track color */
+            }
+
+            /* Style for webkit browsers like Chrome, Safari */
+            *::-webkit-scrollbar {
+              width: 5px; /* Scrollbar width */
+            }
+
+            /* Optionally, hide the scrollbar until it's hovered */
+            *::-webkit-scrollbar-thumb {
+              background-color: transparent; /* Scrollbar thumb is transparent by default */
+            }
+
+            *::-webkit-scrollbar-thumb:hover {
+              background-color: #4CAF50; /* Scrollbar thumb color on hover */
+            }
+
             /* Chat containers */
             .container {
-              border: 2px solid #dedede;
+              /*border: 2px solid #dedede;*/
               background-color: #f1f1f1;
-              border-radius: 5px;
+              border-radius: 10px;
               padding: 10px;
               margin: 10px 0;
             }
@@ -64,11 +184,12 @@
 
     <body id="wholepage">
 
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-          <a class="nav-item nav-link" href="/home"><h1 class="navbar-brand">CHATMELEON</h1></a>
+        <nav class="navbar navbar-expand-lg">
+          <a class="nav-item nav-link" href="/home"><h1 class="myfont"><img src="{{ url_for('static', filename='chatmeleon-logo.png') }}" alt="chatmeleon" style="height: 33px; margin: 0 auto; transform: translateY(-5px);"> Chatmeleon</h1></a>
+          <div class="mycolor">
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
+            <span class=""><img src="{{ url_for('static', filename='navbar.png') }}" style="height: 22px;"></span>
+          </button></div>
           <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav">
               <a class="nav-item nav-link" id="about" href="/about">About</a>

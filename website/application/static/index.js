@@ -15,25 +15,25 @@ async function add_messages(msg, scroll) {
       return await response.json();
     })
     .then(function (color) {
-      var content =
-      '<div class="container" style="background-color:#00000060; transition: 2s;">' +
-      '<b style="color:#000;" class="right">' +
-      msg.name +
-      "</b><p>" +
-      msg.message +
-      '</p><span class="time-right">' +
-      n +
-      "</span></div>";
+      var content = `
+        <div class="chat-message ${global_name == msg.name ? "self" : "other"}">
+          <span class="username">${msg.name}</span>
+          <div class="chat-bubble">
+            <p>${msg.message}</p>
+          </div>
+          <span class="timestamp">${n}</span>
+        </div>
+      `;
     if (global_name == msg.name) { // If message's sender = logged in user, make chatbox different (change align & color)
-      content =
-        '<div class="container darker" style="background-color:#00000080; transition: 2s;">' +
-        '<b style="color:#000;" class="left">' +
-        msg.name +
-        "</b><p>" +
-        msg.message +
-        '</p><span class="time-left">' +
-        n +
-        "</span></div>";
+      content = `
+        <div class="chat-message ${global_name == msg.name ? "self" : "other"}">
+          <span class="username">${msg.name}</span>
+          <div class="chat-bubble">
+            <p>${msg.message}</p>
+          </div>
+          <span class="timestamp">${n}</span>
+        </div>
+      `;
     }
     // Actually update the page/chat window on user's screen
     var messageDiv = document.getElementById("messages");
