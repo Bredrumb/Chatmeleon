@@ -9,7 +9,8 @@ view = Blueprint("views", __name__) # Register blueprint as 'view'
 
 NAME_KEY = 'name'
 MSG_LIMIT = 20 # Maximum messages in display
-
+STACK_SIZE = 5 # Emotions in emotionstack, the lower, the more rapid the color changes
+'''
 categorized_emotions = {
     "Positive": ["admiration", "amusement", "approval", "caring", "curiosity", "desire", "excitement",
                  "gratitude", "joy", "love", "optimism", "pride", "realization", "relief"],
@@ -19,21 +20,25 @@ categorized_emotions = {
     
     "Neutral": ["confusion", "neutral"]
 }
+'''
 
 tokenizer = RobertaTokenizerFast.from_pretrained("arpanghoshal/EmoRoBERTa")
 model = TFRobertaForSequenceClassification.from_pretrained("arpanghoshal/EmoRoBERTa")
 emotion = pipeline('sentiment-analysis', model='arpanghoshal/EmoRoBERTa')
 
+# For finding gradient:
+emotionstack = []
+
 @view.route("/login", methods=["POST", "GET"]) # When going to /login...
 def login(): # The Login Page, inputted 'name' will serve as user's session identifier
     if request.method == "POST":  # If user inputs a name...
         name = request.form["inputName"]
-        if len(name) >= 3:  # Name has to be longer than 2 characters
+        if len(name) >= 3 and not profanity.contains_profanity(name):  # Name has to be longer than 2 characters
             session[NAME_KEY] = name # Signifies that user is logged in
             flash(f'You were successfully logged in as {name}.') # Displays pop-up (green by default)
             return redirect(url_for("views.home"))
         else:
-            flash("1Sorry, your username has to be at least 3 characters!") # '1' prefix displays red alert pop-up
+            flash("1Sorry, your username has to be at least 3 characters as well as contains no profanity!") # '1' prefix displays red alert pop-up
 
     return render_template("login.html", **{"session": session})
 
@@ -100,10 +105,100 @@ def get_history(name): # Gets all user's past messages from database, return as 
 
 @view.route("/get_color")
 def get_color(): # Returns the color code for chat's background using an algorithm (Adaptive Color Feature)
-   db = DataBase()
-    msgs = db.get_all_messages(MSG_LIMIT) 
-    messages = remove_seconds_from_messages(msgs)
+    
+    redval = 0
+    grnval = 0
+    bluval = 0
 
+    message = request.args.get('message')
+    emotion_labels = emotion(message)  # Get emotion labels for the message
+    top_emotion = emotion_labels[0]["label"]  # Get the top emotion label
+    
+    if len(emotionstack) >= STACK_SIZE: # Only max of STACK_SIZE emotions in stack
+        emotionstack.pop(0)
+    emotionstack.append(top_emotion) # Add emotion to stack
+    print("\n")
+    print(emotionstack) # Show stack in console
+    
+
+    '''
+    if emotion in {'anger','jealousy'}:
+        [statements]
+    elif [boolean expresion]:
+        [statements]
+    elif [boolean expresion]:
+        [statements]
+    else:
+        [statements]            
+    '''
+
+    # Get rgb values for each emotion color
+    addedcolor = ''
+    for detectedemotion in emotionstack:
+        if detectedemotion in {'admiration'}: # Add Purple
+            addedcolor = 'Purple'
+            redval += 255
+            grnval += 0
+            bluval += 255
+        elif detectedemotion in {'amusement'}: # Add Orange
+            addedcolor = 'Orange'
+            redval += 255
+            grnval += 155
+            bluval += 0
+        elif detectedemotion in {'approval', 'curiosity'}: # Add Green ; Approval == Contentment ; Curiosity == Interest ; Optimism == Contentment
+            addedcolor = 'Green'
+            grnval += 255
+            bluval += 0
+        elif detectedemotion in {'caring', 'realization', 'disgust'}: # Add White ; Caring == Compassion ; Realization == Relief
+            addedcolor = 'White'
+            redval += 255
+            grnval += 255
+            bluval += 255
+        elif detectedemotion in {'desire', 'love'}: # Add Red ; Desire == Love
+            addedcolor = 'Red'
+            redval += 255
+            grnval += 0
+            bluval += 0
+        elif detectedemotion in {'excitement', 'joy', 'sadness'}: # Add Yellow ; Excitement == Joy
+            addedcolor = 'Yellow'
+            redval += 255
+            grnval += 255
+            bluval += 0
+        elif detectedemotion in {'pride', 'relief', 'gratitude'}: # Add Blue ; Gratitude == Relief
+            addedcolor = 'Blue'
+            redval += 0
+            grnval += 0
+            bluval += 255
+        elif detectedemotion in {'anger', 'annoyance','shame', 'nervousness'}: # Add Turquoise ; Annoyance == Anger ; Nervousness == Shame ; Embarrassment == Shame
+            addedcolor = 'Turquoise'
+            redval += 0
+            grnval += 255
+            bluval += 255
+        elif detectedemotion in {'disappointment', 'disapproval', 'fear', 'grief', 'remorse'}: # Add Pink ; Disapproval == Contempt ; Grief == Guilt ; Remorse == Guilt
+            addedcolor = 'Pink'
+            redval += 255
+            grnval += 130
+            bluval += 170
+        else: # If Neutral, add White
+            addedcolor = 'White'
+            redval += 255
+            grnval += 255
+            bluval += 255
+        
+    print(f"Latest message shows '{top_emotion.capitalize()}', adding color '{addedcolor}'.")
+
+    # Get rgb average of all emotion colors 
+    redval /= STACK_SIZE
+    grnval /= STACK_SIZE
+    bluval /= STACK_SIZE
+
+    # Highest possible value should be (255,255,255)
+    color = f"rgb({redval},{grnval},{bluval})"
+    print(f"Resulting new color is: {color}\n") # Show stack in console
+
+    return jsonify(color)
+
+    '''
     # Initialize emotion counts for each category
     emotion_counts = {"Positive": 0, "Negative": 0, "Neutral": 0}
 
@@ -111,6 +206,7 @@ def get_color(): # Returns the color code for chat's background using an algorit
     for msg in messages:
         emotion_labels = emotion(msg["message"])  # Get emotion labels for the message
         top_emotion = emotion_labels[0]["label"]  # Get the top emotion label
+        print(top_emotion)
 
         # Increment the count for the corresponding emotion category
         for category, emotion_list in categorized_emotions.items():
@@ -120,13 +216,10 @@ def get_color(): # Returns the color code for chat's background using an algorit
 
     # Determine the predominant emotion category
     predominant_emotion = max(emotion_counts, key=emotion_counts.get)
-
+    
     # Map the predominant emotion category to its corresponding color
     color = {"Positive": "rgb(153,255,221)", "Negative": "rgb(255,153,153)", "Neutral": "rgb(240,240,240)"}.get(predominant_emotion)
-
-    return jsonify(color)
-
-
+    '''
 
 @view.route("/check_message")
 def check_message():

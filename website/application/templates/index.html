@@ -19,23 +19,95 @@
 
 {% block content %}
 <style>
-    .form button:hover,.form button:active,.form button:focus {
-        background: #43A047;
+    /* Styling the chat input area */
+    #adaptivewindow {
+      position: relative; /* Positioning context for the absolute elements inside */
+      /* other styles like width, max-width, padding, etc. */
+      padding-bottom: 4.5%;
     }
+    /* Chat messages container */
+    #messages {
+      overflow-y: auto; /* Enable scrolling */
+      height: calc(100vh - 120px); /* Adjust based on your header/footer */
+    }
+
+    /* Input form container */
+    #msgForm {
+      position: absolute; /* Fixed at the bottom of the chat window */
+      bottom: 0;
+      left: 0; /* Align to the left edge of the parent container */
+      right: 0; /* Align to the right edge of the parent container */
+      background-color: #222222; /* Input area background color */
+      padding: 10px; /* Padding inside the input area */
+      display: flex;
+      align-items: center;
+      padding-bottom: 0.1px;
+    }
+
+    /* Styling the input field */
+    .form-control {
+        flex-grow: 1; /* Allow input to fill available space */
+        border: 2px solid #494949; /* Border color matching button */
+        border-radius: 20px; /* Rounded borders */
+        padding: 10px 20px;
+        font-size: 16px;
+        color: #fff; /* Color of the text */
+        background-color: #333; /* Darker background for the input field */
+        margin-right: 10px; /* Spacing between input field and send button */
+    }
+
+    /* Remove default styles from input field */
+    .form-control:focus {
+        outline: none;
+        box-shadow: none;
+    }
+
+    /* Styling the send button */
+    #sendBtn {
+        background-color: #4CAF50; /* Green background color */
+        border: none;
+        border-radius: 50%; /* Circular button */
+        padding: 10px;
+        width: 40px; /* Fixed width */
+        height: 40px; /* Fixed height, makes it a circle */
+        color: white;
+        text-align: center;
+        cursor: pointer;
+        position: relative; /* For icon positioning */
+        font-size: 10px;
+    }
+
+    /* Style adjustments for the send button's icon */
+    #sendBtn::before {
+        content: '';
+        background-size: cover;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 20px;
+        height: 20px;
+    }
+
+    /* Hover effect for send button \\\\\\ style="bottom:0px; margin: 0% 0% 0% 0%;*/
+    #sendBtn:hover {
+        background-color: #45a049;
+    }
+
 </style>
 <div class="row" style="padding-top:10px;" >
     <div class="col"><hr></div>
-    <div class="col-auto"><p class="h3" align="center">CHATMELEON</p></div>
+    <div class="col-auto"><img src="{{ url_for('static', filename='chatmeleon-logo.png') }}" alt="chatmeleon" style="height: 60px;"></div>
     <div class="col"><hr></div>
 </div>
 <div style="transition: 1s;" id="adaptivewindow" class="container" >
     <div id="messages" class="overflow-auto msgs" style="overflow-y: scroll; height:500px;">
     </div>
-    <form id="msgForm" action="" method="POST" style="bottom:0; margin: 0% 0% 0% 0%;">
+    <form id="msgForm" action="" method="POST">
         <div class="input-group mb-3">
               <input type="text" class="form-control" placeholder="Message" aria-label="Message" id="msg">
               <div class="input-group-append">
-                <button class="btn btn-success" type="submit" id="sendBtn">Send</button>
+                <button class="btn btn-success myfont" type="submit" id="sendBtn">Send</button>
               </div>
         </div>
     </form>
