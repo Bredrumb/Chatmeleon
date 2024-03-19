@@ -1,6 +1,7 @@
+var globalcolor = ""
 // Adds a singular message unto the chat window
 async function add_messages(msg, scroll) {
-  if (typeof msg.name !== "undefined") {
+  if (typeof msg.name !== "undefined" && msg.message !== "undefined") {
     var date = dateNow();
 
     if (typeof msg.time !== "undefined") {
@@ -10,11 +11,21 @@ async function add_messages(msg, scroll) {
     }
     var global_name = await load_name();
     
-    return await fetch("/get_color")
+    return await fetch("/get_color?message="+msg.message)
     .then(async function (response) {
       return await response.json();
     })
     .then(function (color) {
+      var content = `
+      <div class="chat-message ${global_name == msg.name ? "self" : "other"}">
+        <span class="username">${msg.name}</span>
+        <div class="chat-bubble">
+          <p>${msg.message}</p>
+        </div>
+        <span class="timestamp">${n}</span>
+      </div>
+    `;
+      /*
       var content =
       '<div class="container" style="background-color:#00000060; transition: 2s;">' +
       '<b style="color:#000;" class="right">' +
@@ -24,7 +35,19 @@ async function add_messages(msg, scroll) {
       '</p><span class="time-right">' +
       n +
       "</span></div>";
+      */
     if (global_name == msg.name) { // If message's sender = logged in user, make chatbox different (change align & color)
+      content = `
+      <div class="chat-message ${global_name == msg.name ? "self" : "other"}">
+        <span class="username">${msg.name}</span>
+        <div class="chat-bubble">
+          <p>${msg.message}</p>
+        </div>
+        <span class="timestamp">${n}</span>
+      </div>
+    `;
+      
+      /*
       content =
         '<div class="container darker" style="background-color:#00000080; transition: 2s;">' +
         '<b style="color:#000;" class="left">' +
@@ -34,6 +57,7 @@ async function add_messages(msg, scroll) {
         '</p><span class="time-left">' +
         n +
         "</span></div>";
+        */
     }
     // Actually update the page/chat window on user's screen
     var messageDiv = document.getElementById("messages");
@@ -45,6 +69,7 @@ async function add_messages(msg, scroll) {
       // Updates color of chat window
       var chatwindow = document.getElementById("adaptivewindow");
       chatwindow.style.backgroundColor = color
+      globalcolor = color
       console.log(color);
       return color;
     });
@@ -163,33 +188,32 @@ socket.on("connect", async function () { // When any user connects to the server
       message: user_input,
       name: user_name, 
     });
+    return;
     }
     else
     {
       
-      var warnmodal= 
-      `<div class="modal fade" id="suppressor" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="staticBackdropLabel">INAPPROPRIATE MESSAGE DETECTED</h5>
-            </div>
-            <div class="modal-body center">
-              "${user_input}"
-            </div>
-            <div class="modal-body">
-            Your message has been deemed inappropriate by our algorithms, please refrain from sending inappropriate messages!
-            </div>
-            <div class="modal-footer">
-              <button onclick="window.location.href='/home';" class="btn btn-primary">I understand</button>
-            </div>
-          </div>
-        </div>
-      </div>`
+
+      $('#suppressor').modal('show');
+      var chatwindow = document.getElementById("adaptivewindow");
+      chatwindow.style.backgroundColor = "rgb(230,38,0)"
+
+      /*
+      socket.emit("event", {  // Sends message to database as well
+        message: user_input,
+        name: user_name, 
+      });
 
       var page = document.getElementById("wholepage");
       page.innerHTML += warnmodal;
-      $('#suppressor').modal('show');
+      //
+      socket.emit("event", {  // Sends message to database as well
+        message: "*User's message has been censored*",
+        name: "undefined", 
+      });
+      
+      */
+      return;
     }
   });
 });
@@ -222,3 +246,9 @@ window.onload = async function () {
     //$("#history").hide();
   }
 };
+
+$('#closeit').on('click', function (e){
+  var chatwindow = document.getElementById("adaptivewindow");
+  chatwindow.style.backgroundColor = globalcolor
+  $('#suppressor').modal('toggle')
+});
