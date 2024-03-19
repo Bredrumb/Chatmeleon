@@ -188,9 +188,9 @@ def get_color(): # Returns the color code for chat's background using an algorit
     print(f"Latest message shows '{top_emotion.capitalize()}', adding color '{addedcolor}'.")
 
     # Get rgb average of all emotion colors 
-    redval /= STACK_SIZE
-    grnval /= STACK_SIZE
-    bluval /= STACK_SIZE
+    redval /= len(emotionstack)
+    grnval /= len(emotionstack)
+    bluval /= len(emotionstack)
 
     # Highest possible value should be (255,255,255)
     color = f"rgb({redval},{grnval},{bluval})"
