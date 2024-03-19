@@ -56,6 +56,7 @@ def home(): # Displays chatroom, redirects to Login if user is not logged in
     if NAME_KEY not in session:
         return redirect(url_for("views.login"))
 
+    emotionstack.clear()
     return render_template("index.html", **{"session": session})
 
 @view.route("/about") # When going to /about...
