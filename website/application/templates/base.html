@@ -50,6 +50,10 @@
               align-items: flex-end; /* Align items to the end for self messages */
             }
 
+            .chat-message.sysmsg {
+              align-items: center; /* Align items to the end for self messages */
+            }
+
             /* Username styling */
             .username {
               font-size: 17px;
@@ -96,6 +100,19 @@
               border-radius: 20px;
               padding: 10px 16px 10px 16px; /* Top Right Bottom Left */
               max-width: 80%;
+              word-wrap: break-word; /* Ensures the text wraps within the bubble */
+            }
+
+            /* Chat bubble styling for system */
+            .sysmsg .chat-bubble {
+              background-color: #b9b9b900; /* White background for other users' chat bubble */
+              color: #00000070; /* Black text color */
+              border-radius: 20px;
+              padding: 10px 16px 10px 16px; /* Top Right Bottom Left */
+              max-width: 80%;
+              box-shadow: 0px 0px 0 rgba(0, 0, 0, 0.2);
+              font-weight: bold;
+              text-align: center;
               word-wrap: break-word; /* Ensures the text wraps within the bubble */
             }
 
@@ -177,6 +194,10 @@
               float: left;
               color: #2a2a2a;
             }
+            #startinfo {
+              text-align: justify;
+              font-weight: lighter;
+            }
 
         </style>
         <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
@@ -187,21 +208,7 @@
     </head>
 
     <body id="wholepage">
-      <div class="modal fade" id="suppressor" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-          <div style ="background: #244221; color:white" class="modal-content myfont">
-            <div class="modal-header">
-              <h5 class="modal-title" id="staticBackdropLabel">Sorry But...</h5>
-            </div>
-            <div class="modal-body">
-            That message has been detected to be inappropriate, preventing it from being sent to the chatroom. Please refrain from sending any more inappropriate messages!
-            </div>
-            <div class="modal-footer">
-              <button id="closeit" class="btn btn-primary">I understand</button>
-            </div>
-          </div>
-        </div>
-      </div>
+      
         <nav class="navbar navbar-expand-lg">
           <a class="nav-item nav-link" href="/home"><h1 class="myfont"><img src="{{ url_for('static', filename='chatmeleon-logo.png') }}" alt="chatmeleon" style="height: 33px; margin: 0 auto; transform: translateY(-5px);"> Chatmeleon</h1></a>
           <div class="mycolor">

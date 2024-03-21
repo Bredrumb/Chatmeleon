@@ -59,6 +59,15 @@ async function add_messages(msg, scroll) {
         "</span></div>";
         */
     }
+    if (msg.name == "SYSTEM") { // If message's sender = logged in user, make chatbox different (change align & color)
+      content = `
+      <div class="chat-message sysmsg">
+        <div class="chat-bubble">
+          <p>${msg.message}</p>
+        </div>
+      </div>
+    `;
+    }
     // Actually update the page/chat window on user's screen
     var messageDiv = document.getElementById("messages");
     messageDiv.innerHTML += content;
@@ -91,6 +100,7 @@ async function load_name() {  // Loads name of user
 }
 
 async function load_messages() { // Loads messages from database
+  $('#startinfo').modal('toggle')
   return await fetch("/get_messages")
     .then(async function (response) {
       return await response.json();
@@ -192,12 +202,15 @@ socket.on("connect", async function () { // When any user connects to the server
     }
     else
     {
-      
-
+      socket.emit("event", {  // Sends message to database as well
+        message: "Sorry, but that message was deemed too inappropriate,\ntherefore its transmission was prevented by the server.",
+        name: "SYSTEM", 
+      });
+      /*
       $('#suppressor').modal('show');
       var chatwindow = document.getElementById("adaptivewindow");
       chatwindow.style.backgroundColor = "rgb(230,38,0)"
-
+      */
       /*
       socket.emit("event", {  // Sends message to database as well
         message: user_input,
@@ -251,4 +264,9 @@ $('#closeit').on('click', function (e){
   var chatwindow = document.getElementById("adaptivewindow");
   chatwindow.style.backgroundColor = globalcolor
   $('#suppressor').modal('toggle')
+});
+
+
+$('#closeinfo').on('click', function (e){
+  $('#startinfo').modal('toggle')
 });

@@ -96,6 +96,23 @@
     }
 
 </style>
+<div class="modal fade" id="startinfo" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content myfont">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Welcome to Chatmeleon!</h5>
+      </div>
+      <div class="modal-body">
+        This website is a prototype of Chatmeleon, which is a proposed mobile chatting application
+        that changes colors based on the current mood of the ongoing conversation. This is in order to enhance the user experience of online messaging by using adaptive colors that
+        accentuate positive emotions, and at the same time, diminish feelings of negativity. Have fun!
+      </div>
+      <div class="modal-footer">
+        <button id="closeinfo" class="btn btn-primary">Okay!</button>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="row" style="padding-top:10px;" >
     <div class="col"><hr></div>
     <div class="col-auto"><img src="{{ url_for('static', filename='chatmeleon-logo.png') }}" alt="chatmeleon" style="height: 60px;"></div>
@@ -108,7 +125,7 @@
         <div class="input-group mb-3">
               <input type="text" class="form-control" placeholder="Message" aria-label="Message" id="msg">
               <div class="input-group-append">
-                <button class="btn btn-success myfont" type="submit" id="sendBtn">Send</button>
+                <button class="btn btn-success myfont" type="submit" id="sendBtn" style="font-weight: boldest;">SEND</button>
               </div>
         </div>
     </form>

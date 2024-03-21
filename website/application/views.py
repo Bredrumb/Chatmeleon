@@ -3,7 +3,7 @@ from flask import Flask, render_template, url_for, redirect, request, session, j
 from .database import DataBase
 from transformers import RobertaTokenizerFast, TFRobertaForSequenceClassification, pipeline
 from better_profanity import profanity
-
+import re
 
 view = Blueprint("views", __name__) # Register blueprint as 'view'
 
@@ -236,8 +236,9 @@ def remove_seconds_from_messages(msgs): # Simple 'seconds' removal
     messages = []
     for msg in msgs:
         message = msg
-        message["time"] = remove_seconds(message["time"])
-        messages.append(message)
+        if message["name"] != "SYSTEM":
+            message["time"] = remove_seconds(message["time"])
+            messages.append(message)
     return messages
 
 def remove_seconds(msg):
