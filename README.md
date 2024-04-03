@@ -1,5 +1,8 @@
 # Chatmeleon
 
+![chatmeleon](https://github.com/Eliolocin/Chatmeleon/assets/65227425/a0d8e9e3-ac2e-4e8f-a677-a55ef3326c44)
+
+Flask Web application based around Empathic Computing principles. Users communicate in a chat room that detects emotions through AI. Changes color based on 28 different emotions, promoting positive conversation.
 ## Setup
 1. Clone or download Chatmeleon (Main Branch).
 2. Ensure you have python 3.6+ installed in your system.
